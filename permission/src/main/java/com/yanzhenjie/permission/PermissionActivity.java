@@ -24,7 +24,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
 /**
- * <p>Request permission.</p>
+ * <p>
+ * Request permission.
+ * </p>
  * Created by Yan Zhenjie on 2017/4/27.
  */
 @RequiresApi(api = Build.VERSION_CODES.M)
@@ -32,10 +34,15 @@ public final class PermissionActivity extends Activity {
 
     static final String KEY_INPUT_PERMISSIONS = "KEY_INPUT_PERMISSIONS";
 
-    private static PermissionListener mPermissionListener;
+    private static RationaleListener sRationaleListener;
+    private static PermissionListener sPermissionListener;
+
+    public static void setRationaleListener(RationaleListener rationaleListener) {
+        PermissionActivity.sRationaleListener = rationaleListener;
+    }
 
     public static void setPermissionListener(PermissionListener permissionListener) {
-        mPermissionListener = permissionListener;
+        sPermissionListener = permissionListener;
     }
 
     @Override
@@ -43,18 +50,40 @@ public final class PermissionActivity extends Activity {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         String[] permissions = intent.getStringArrayExtra(KEY_INPUT_PERMISSIONS);
-        if (mPermissionListener == null || permissions == null)
+
+        if (permissions == null) {
+            sRationaleListener = null;
+            sPermissionListener = null;
             finish();
-        else
+            return;
+        }
+
+        if (sRationaleListener != null) {
+            boolean rationale = false;
+            for (String permission : permissions) {
+                rationale = shouldShowRequestPermissionRationale(permission);
+                if (rationale) break;
+            }
+            sRationaleListener.onRationaleResult(rationale);
+            sRationaleListener = null;
+            finish();
+            return;
+        }
+
+        if (sPermissionListener != null)
             requestPermissions(permissions, 1);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (mPermissionListener != null)
-            mPermissionListener.onRequestPermissionsResult(permissions, grantResults);
-        mPermissionListener = null;
+        if (sPermissionListener != null)
+            sPermissionListener.onRequestPermissionsResult(permissions, grantResults);
+        sPermissionListener = null;
         finish();
+    }
+
+    interface RationaleListener {
+        void onRationaleResult(boolean showRationale);
     }
 
     interface PermissionListener {

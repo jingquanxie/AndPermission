@@ -1,7 +1,9 @@
-﻿# AndPermission
-Support the right to request for permission at anywhere.  
+﻿Request for permission anywhere, and compatible with Android O.
+
+[Why is it compatible with Android O ?](https://developer.android.com/preview/behavior-changes.html#rmp)
 
 [中文文档](./README-CN.md)  
+只针对中国开发者：[国产机兼容方案](https://github.com/yanzhenjie/AndPermission/blob/master/README-CN.md#国产手机适配方案)  
 
 ----
 # Features
@@ -15,7 +17,7 @@ Support the right to request for permission at anywhere.
 # Dependencies
 * Gradle
 ```groovy
-compile 'com.yanzhenjie:permission:1.0.8'
+compile 'com.yanzhenjie:permission:1.1.2'
 ```
 
 * Maven
@@ -23,7 +25,7 @@ compile 'com.yanzhenjie:permission:1.0.8'
 <dependency>
   <groupId>com.yanzhenjie</groupId>
   <artifactId>permission</artifactId>
-  <version>1.0.8</version>
+  <version>1.1.2</version>
   <type>pom</type>
 </dependency>
 ```
@@ -38,7 +40,7 @@ It is recommended to download Demo and read README, which can help you understan
 // Activity:
 AndPermission.with(activity)
     .requestCode(100)
-    .permission(Manifest.permission.WRITE_CONTACTS)
+    .permission(Permission.SMS)
     .rationale(...)
     .callback(...)
     .start();
@@ -47,9 +49,9 @@ AndPermission.with(activity)
 AndPermission.with(fragment)
     .requestCode(100)
     .permission(
-        // Multiple permissions, array form.
-        Manifest.permission.WRITE_CONTACTS,
-        Manifest.permission.READ_SMS
+        // Multiple permissions group.
+        Permission.SMS,
+        Permission.LOCATION
     )
     .rationale(...)
     .callback(...)
@@ -58,6 +60,22 @@ AndPermission.with(fragment)
 // Anywhere:
 AndPermission.with(context)
     .requestCode(100)
+    .permission(Permission.SMS)
+    .rationale(...)
+    .callback(...)
+    .start();
+
+// If only want to request a permission: 
+AndPermission.with(this)
+    .requestCode(300)
+    .permission(Manifest.permission.WRITE_CONTACTS)
+    .rationale(...)
+    .callback(...)
+    .start();
+
+// If only want to request some permissions: 
+AndPermission.with(this)
+    .requestCode(300)
     .permission(
         Manifest.permission.WRITE_CONTACTS,
         Manifest.permission.READ_SMS
@@ -214,7 +232,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 # License
 ```text
-Copyright © Yan Zhenjie
+Copyright 2016 Yan Zhenjie
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
